@@ -5,9 +5,8 @@ public class Counter implements Runnable {
     int factor;
 
     public Counter(int factor) {
-        this.factor =factor;
+        this.factor = factor;
     }
-
 
     @Override
     public void run() {
