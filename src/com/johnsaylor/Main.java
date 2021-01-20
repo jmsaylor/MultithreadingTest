@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -33,15 +34,37 @@ public class Main {
 
         System.out.println(Arrays.toString(buffer));
 
-        ranAccess.read(buffer, 4, 50);
-
-        ranAccess.skipBytes(50);
-
+        ranAccess.read(buffer, 0, 100);
+//        ranAccess.skipBytes(50);
+        System.out.println(ranAccess.getFilePointer());
+        ranAccess.seek(123383741);
         ranAccess.read(buffer2, 0, 100);
 
+        var string = new String(buffer, StandardCharsets.UTF_8);
+
+        System.out.println(string);
+
         System.out.println(Arrays.toString(buffer));
+
+        var string2 = new String(buffer2, StandardCharsets.UTF_8);
+
+//        byte newLine = Byte.parseByte(System.lineSeparator());
+
+        System.out.println(string2);
         System.out.println(Arrays.toString(buffer2));
 //        var channel = ranAccess.getChannel();
+
+        for (byte b : buffer2) {
+            if (b == 10) continue;
+            System.out.print((char) b);
+        }
+        System.out.println();
+
+        var splitPoints = FindSplitPoints.find(ranAccess);
+
+        System.out.println(splitPoints);;
+
+//        System.out.println(newLine);
 
     }
 }
