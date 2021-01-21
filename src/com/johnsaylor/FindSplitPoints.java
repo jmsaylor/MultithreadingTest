@@ -7,8 +7,12 @@ import java.util.List;
 
 public class FindSplitPoints {
 
-    public static List<Long> find(RandomAccessFile file) throws IOException {
+    public static List<Long> find(String source) throws IOException {
         List<Long> result = new ArrayList<>();
+        RandomAccessFile file = null;
+        try {
+            file = new RandomAccessFile(source, "r");
+        } catch (Exception e) {}
         //first start point
         result.add(0L);
 
@@ -27,6 +31,8 @@ public class FindSplitPoints {
         file.seek(chunkSize * 3);
         while (file.readByte() != 10) { }
         result.add(file.getFilePointer());
+
+        result.add(file.length());
 
         return result;
 
