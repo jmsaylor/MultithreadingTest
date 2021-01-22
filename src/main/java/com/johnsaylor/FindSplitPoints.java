@@ -18,6 +18,7 @@ public class FindSplitPoints {
 
         int threads = 8;
 
+        //TODO better error handling
         long chunkSize = file.length() / threads;
 
         // 10 is a newline
