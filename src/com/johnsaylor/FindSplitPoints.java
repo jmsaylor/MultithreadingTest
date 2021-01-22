@@ -16,21 +16,16 @@ public class FindSplitPoints {
         //first start point
         result.add(0L);
 
-        long chunkSize = file.length() / 4;
+        int threads = 8;
+
+        long chunkSize = file.length() / threads;
 
         // 10 is a newline
-        file.seek(chunkSize);
-        while (file.readByte() != 10) { }
-        result.add(file.getFilePointer());
-
-
-        file.seek(chunkSize * 2);
-        while (file.readByte() != 10) { }
-        result.add(file.getFilePointer());
-
-        file.seek(chunkSize * 3);
-        while (file.readByte() != 10) { }
-        result.add(file.getFilePointer());
+        for (int i = 1; i < threads; i++) {
+            file.seek(chunkSize * i);
+            while (file.readByte() != 10) { }
+            result.add(file.getFilePointer());
+        }
 
         result.add(file.length());
 

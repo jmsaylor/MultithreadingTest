@@ -26,7 +26,8 @@ public class Reader implements Runnable{
 
             while (randomAccessFile.getFilePointer() != end) {
                 String newLine = randomAccessFile.readLine();
-                destination.add(newLine.split(",")); //separate concern
+                System.out.println(newLine);
+//                destination.add(newLine.split(",")); //separate concern
             }
 
         } catch (IOException e) {
