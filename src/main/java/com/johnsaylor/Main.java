@@ -37,11 +37,14 @@ public class Main {
             Connection db = DBConnect.connect();
             if (db == null) {
                 System.out.println("DB connection failure");
+                System.exit(0);
             } else {
                 System.out.println("DB Connected!");
             }
 
-            db.
+            InsertSQL sql = new InsertSQL(db);
+
+            sql.createTable();
 
 
         } catch (ClassNotFoundException | SQLException e) {
