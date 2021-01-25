@@ -1,22 +1,21 @@
 package com.johnsaylor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Arrays;
 
 //step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud
 //1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0
 
 public class InsertSQL {
-    Connection connection;
+    private Connection connection;
 
     public InsertSQL(Connection connection) throws SQLException {
         this.connection = connection;
     }
 
-    public void addToBatch(String[] row) throws SQLException {
-        String query = "INSERT INTO transactions VALUES(?,?,?,?,?,?,?)";
+    public void addToBatch(String data) throws SQLException {
+        String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+        String[] row = data.split(",");
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         //step
         preparedStatement.setInt(1, Integer.parseInt(row[0]));
@@ -40,15 +39,22 @@ public class InsertSQL {
         preparedStatement.setFloat(10, Float.parseFloat(row[9]));
 //        isFlaggedFraud
         preparedStatement.setInt(11, Integer.parseInt(row[10]));
+
+        //TODO separate concerns
+        preparedStatement.addBatch();
+        executeBatch(preparedStatement);
+
+    }
+
+    public void executeBatch(PreparedStatement preparedStatement) throws SQLException {
+        var result = preparedStatement.executeBatch();
+        System.out.println(Arrays.toString(result));
     }
 
 
     public void createTable() throws SQLException {
-//        stmt.execute("DROP TABLE IF EXISTS customers CASCADE");
-//        stmt.execute("CREATE TABLE customers (CustID int, Last_Name"
-//                + " char(50), First_Name char(50),Email char(50), "
-//                + "Phone_Number char(12))");
         Statement statement = connection.createStatement();
+        statement.execute("DROP TABLE IF EXISTS transactions CASCADE");
         statement.execute("CREATE TABLE transactions(" +
                 "step int, type char(50),amount decimal, nameOrig char(50)," +
                 "oldbalanceOrg decimal,newbalanceOrig decimal, nameDest char(50)," +

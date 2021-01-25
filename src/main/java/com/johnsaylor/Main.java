@@ -34,6 +34,7 @@ public class Main {
 //        }
 
         try {
+            //TODO encapsulate more variables and logic
             Connection db = DBConnect.connect();
             if (db == null) {
                 System.out.println("DB connection failure");
@@ -45,6 +46,11 @@ public class Main {
             InsertSQL sql = new InsertSQL(db);
 
             sql.createTable();
+
+            sql.addToBatch("1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0");
+
+            db.close();
+
 
 
         } catch (ClassNotFoundException | SQLException e) {
