@@ -10,17 +10,16 @@ import java.util.Arrays;
 
 public class SqlEngine {
     private final Connection connection = DBConnect.connect();
-    private final String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
-    private PreparedStatement preparedStatement;
+    private final PreparedStatement preparedStatement;
 
     public SqlEngine() throws SQLException, ClassNotFoundException {
         if (connection == null) throw new SQLException("Failure to connect");
+        String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
         this.preparedStatement = connection.prepareStatement(query);
         createTable();
     }
 
     public void addToBatch(String data) throws SQLException {
-
         String[] row = data.split(",");
 
         //step
