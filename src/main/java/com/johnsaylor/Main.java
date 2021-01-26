@@ -4,10 +4,7 @@ package com.johnsaylor;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.List;
 
 public class Main {
 
@@ -34,24 +31,9 @@ public class Main {
 //        }
 
         try {
-            //TODO encapsulate more variables and logic
-            Connection db = DBConnect.connect();
-            if (db == null) {
-                System.out.println("DB connection failure");
-                System.exit(0);
-            } else {
-                System.out.println("DB Connected!");
-            }
 
-            InsertSQL sql = new InsertSQL(db);
-
-            sql.createTable();
-
+            SqlEngine sql = new SqlEngine();
             sql.addToBatch("1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0");
-
-            db.close();
-
-
 
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("error");

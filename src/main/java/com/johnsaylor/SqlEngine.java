@@ -6,17 +6,23 @@ import java.util.Arrays;
 //step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud
 //1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0
 
-public class InsertSQL {
-    private Connection connection;
+//TODO is db.close() required? also, autocommit settings?
 
-    public InsertSQL(Connection connection) throws SQLException {
-        this.connection = connection;
+public class SqlEngine {
+    private final Connection connection = DBConnect.connect();
+    private final String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+    private PreparedStatement preparedStatement;
+
+    public SqlEngine() throws SQLException, ClassNotFoundException {
+        if (connection == null) throw new SQLException("Failure to connect");
+        this.preparedStatement = connection.prepareStatement(query);
+        createTable();
     }
 
     public void addToBatch(String data) throws SQLException {
-        String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+
         String[] row = data.split(",");
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
+
         //step
         preparedStatement.setInt(1, Integer.parseInt(row[0]));
         //type
@@ -42,11 +48,12 @@ public class InsertSQL {
 
         //TODO separate concerns
         preparedStatement.addBatch();
-        executeBatch(preparedStatement);
+
+        executeBatch();
 
     }
 
-    public void executeBatch(PreparedStatement preparedStatement) throws SQLException {
+    public void executeBatch() throws SQLException {
         var result = preparedStatement.executeBatch();
         System.out.println(Arrays.toString(result));
     }
@@ -56,9 +63,11 @@ public class InsertSQL {
         Statement statement = connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS transactions CASCADE");
         statement.execute("CREATE TABLE transactions(" +
-                "step int, type char(50),amount decimal, nameOrig char(50)," +
-                "oldbalanceOrg decimal,newbalanceOrig decimal, nameDest char(50)," +
+                "step int, type char(20),amount decimal, nameOrig char(20)," +
+                "oldbalanceOrg decimal,newbalanceOrig decimal, nameDest char(20)," +
                 "oldbalanceDest decimal,newbalanceDest decimal,isFraud decimal,isFlaggedFraud int" +
                 ")");
     }
+
+
 }
