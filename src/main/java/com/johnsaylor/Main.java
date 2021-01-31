@@ -1,45 +1,34 @@
 package com.johnsaylor;
 
 
+import com.johnsaylor.csv.FindSplitPoints;
+import com.johnsaylor.csv.Reader;
+import com.johnsaylor.sql.BalanceBatch;
+
+import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         // write your code here
-//        String path = "/home/jm/Code/CareerDevs/BigDataProject/data/PS_20174392719_1491204439457_log.csv";
-//        List<Long> bounds = FindSplitPoints.find(path);
-//        System.out.println(bounds);
-//        int threads = 8;
-//
-//        ToSendQueue queue = new ToSendQueue();
-//
-// Make & Start Threads
-//        for (int i = 0; i < threads; i++) {
-//            long start = bounds.get(i);
-//            long end = bounds.get(i + 1);
-//            Reader reader = new Reader(path, new long[]{start, end}, queue);
-//            Thread thread = new Thread(reader);
-//            thread.start();
-//        }
-//
-//        while (queue.hasNext()) {
-//            System.out.println(Arrays.toString(queue.get()));
-//        }
+        String path = "/home/jm/Code/CareerDevs/BigDataProject/data/PS_20174392719_1491204439457_log.csv";
 
-        try {
+        BalanceBatch balance = new BalanceBatch(10);
 
-            SqlEngine sql = new SqlEngine();
-            sql.addToBatch("1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0");
+        balance.startAll();
 
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("error");
-            System.out.println(e.getMessage());
-            Arrays.stream(e.getStackTrace()).forEach(System.out::println);
+        try (Stream<String> stream = Files.lines(Paths.get(path))) {
+            stream.forEach(balance::send);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
+        balance.stopAll();
     }
 }

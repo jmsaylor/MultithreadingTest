@@ -1,25 +1,26 @@
-package com.johnsaylor;
+package com.johnsaylor.sql;
 
 import java.sql.*;
-import java.util.Arrays;
 
 //step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud
 //1,PAYMENT,9839.64,C1231006815,170136.0,160296.36,M1979787155,0.0,0.0,0,0
 
-//TODO is db.close() required? also, autocommit settings?
-
-public class SqlEngine {
-    private final Connection connection = DBConnect.connect();
+public class BatchInsert implements AutoCloseable {
     private final PreparedStatement preparedStatement;
+    private int batchSize = 0;
+    private final int batchLimit;
 
-    public SqlEngine() throws SQLException, ClassNotFoundException {
+    public BatchInsert(int batchLimit) throws SQLException, ClassNotFoundException {
+        this.batchLimit = batchLimit;
+        Connection connection = DBConnect.connect();
         if (connection == null) throw new SQLException("Failure to connect");
         String query = "INSERT INTO transactions (step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest,isFraud,isFlaggedFraud) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
         this.preparedStatement = connection.prepareStatement(query);
-        createTable();
+//        createTable();
     }
 
-    public void addToBatch(String data) throws SQLException {
+
+    public void insert(String data) throws SQLException {
         String[] row = data.split(",");
 
         //step
@@ -45,28 +46,37 @@ public class SqlEngine {
 //        isFlaggedFraud
         preparedStatement.setInt(11, Integer.parseInt(row[10]));
 
-        //TODO separate concerns
         preparedStatement.addBatch();
 
-        executeBatch();
+        if (++batchSize >= batchLimit){
+            sendBatch();
+        }
 
     }
 
-    public void executeBatch() throws SQLException {
+    public void sendBatch() throws SQLException {
         var result = preparedStatement.executeBatch();
-        System.out.println(Arrays.toString(result));
+        System.out.println("Processed " + result.length + " records.");
+        batchSize = 0;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (batchSize > 0) {
+            sendBatch();
+        }
     }
 
 
-    public void createTable() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS transactions CASCADE");
-        statement.execute("CREATE TABLE transactions(" +
-                "step int, type char(20),amount decimal, nameOrig char(20)," +
-                "oldbalanceOrg decimal,newbalanceOrig decimal, nameDest char(20)," +
-                "oldbalanceDest decimal,newbalanceDest decimal,isFraud decimal,isFlaggedFraud int" +
-                ")");
-    }
 
-
+    //TODO: this can't be run everytime
+//    public void createTable() throws SQLException {
+//        Statement statement = connection.createStatement();
+//        statement.execute("DROP TABLE IF EXISTS transactions CASCADE");
+//        statement.execute("CREATE TABLE transactions(" +
+//                "step int, type char(20),amount decimal, nameOrig char(20)," +
+//                "oldbalanceOrg decimal,newbalanceOrig decimal, nameDest char(20)," +
+//                "oldbalanceDest decimal,newbalanceDest decimal,isFraud decimal,isFlaggedFraud int" +
+//                ")");
+//    }
 }

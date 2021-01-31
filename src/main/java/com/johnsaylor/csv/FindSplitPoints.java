@@ -1,4 +1,4 @@
-package com.johnsaylor;
+package com.johnsaylor.csv;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
