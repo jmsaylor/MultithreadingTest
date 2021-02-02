@@ -7,16 +7,13 @@ import java.util.List;
 
 public class FindSplitPoints {
 
-    public static List<Long> find(String source) throws IOException {
+    public static List<Long> find(RandomAccessFile randomAccessFile, int count) throws IOException {
         List<Long> result = new ArrayList<>();
-        RandomAccessFile file = null;
-        try {
-            file = new RandomAccessFile(source, "r");
-        } catch (Exception e) {}
-        //first start point
+        RandomAccessFile file = randomAccessFile;
+
         result.add(0L);
 
-        int threads = 8;
+        int threads = count;
 
         //TODO better error handling
         long chunkSize = file.length() / threads;

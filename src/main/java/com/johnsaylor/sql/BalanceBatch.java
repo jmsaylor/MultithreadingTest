@@ -7,12 +7,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BalanceBatch {
     private final List<RunnableBatch> threads = new ArrayList<>();
+    Queue<String> queue;
+    private final int BATCH_SIZE = 20_000;
 
-    private Queue<String> queue = new ConcurrentLinkedQueue<>();
-    private final int BATCH_SIZE = 10_000;
 
-
-    public BalanceBatch(int threadCount){
+    public BalanceBatch(int threadCount, Queue<String> queue){
+        this.queue = queue;
         for (int i = 0; i < threadCount; i++) {
             threads.add(new RunnableBatch(BATCH_SIZE, queue));
         }
